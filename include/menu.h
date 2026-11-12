@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 #include "console.h"
-#include "staticUsers.h"
+#include "dynamicUsers.h"
 
 void displayMainMenu(int spaceX, int spaceY, int selectedIndex, Color color) {
     string options[3] = {"1. New", "2. Display", "3. Logout"};
@@ -11,7 +11,7 @@ void displayMainMenu(int spaceX, int spaceY, int selectedIndex, Color color) {
     }
 }
 
-void displayNewUsersMenu(int spaceX, int spaceY, Users *(userPtr)[], int ptrSize) {
+void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize) {
     clearScreen();
     if (ptrSize <= 0) {
         printAt(spaceX, spaceY, "Invalid size. Press any key to return to the menu.", true, Color::Red);
@@ -23,9 +23,13 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users *(userPtr)[], int ptrSize
         ++n;
     }
     if (n == ptrSize) {
-        printAt(spaceX, spaceY, "No more space to add users. Press any key to return to the menu.", true, Color::Red);
-        getArrowKey();
-        return;
+        ptrSize *= 2;
+        Users** newUsers = new Users*[ptrSize]{nullptr};
+        for (int i = 0; i < ptrSize/2; i++) {
+            newUsers[i] = userPtr[i];
+        }
+        delete[] userPtr;
+        userPtr = newUsers;
     }
 
     Users* tempUser = new Users();
@@ -51,7 +55,7 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users *(userPtr)[], int ptrSize
             printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid password (must be 7-99 characters)!", true, Color::Red);
         }
         lineStep+=2;
-    } while (!tempUser->isPasswordSet(tempUser, n));
+    } while (!tempUser->isPasswordSet());
 
     do {
         printAt(spaceX, spaceY + lineStep, "Enter email:");
@@ -94,20 +98,17 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users *(userPtr)[], int ptrSize
 void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize) {
     clearScreen();
 
-    // 1. Boundary Check for invalid array size
     if (ptrSize <= 0) {
         printAt(spaceX, spaceY, "Invalid menu size. Press any key to return.", true, Color::Red);
         getArrowKey();
         return;
     }
 
-    // 2. Count active users (starting at index 0)
     int userCount = 0;
     while (userCount < ptrSize && userPtr[userCount] != nullptr) {
         userCount++;
     }
 
-    // 3. Handle empty list case
     if (userCount == 0) {
         printAt(spaceX, spaceY, "No users registered yet!", true, Color::Red);
         printAt(spaceX, spaceY + 2, "Press any key to return to main menu...", true, Color::White);
@@ -115,7 +116,6 @@ void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize)
         return;
     }
 
-    // 4. Header Output
     printAt(spaceX, spaceY, "USERS LIST");
 
     int currentY = spaceY + 2;
@@ -139,7 +139,7 @@ void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize)
     getArrowKey();
 }
 
-void initMenu(int spaceX, int spaceY, Users *(userPtr)[], int ptrSize) {
+void initMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize) {
     int selectedIndex{1};
     while(true) {
         clearScreen();

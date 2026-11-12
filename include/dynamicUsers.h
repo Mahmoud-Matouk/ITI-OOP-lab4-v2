@@ -1,10 +1,10 @@
-#ifndef STATICMENU_H
-#define STATICMENU_H
+#ifndef DYNAMICUSERS_H
+#define DYNAMICUSERS_H
 #define MAX_SIZE 100
 #include "utils.h"
 using namespace std;
 
-class Users {
+struct Users {
     private:
         char name[MAX_SIZE];
         char password[MAX_SIZE];
@@ -38,8 +38,8 @@ class Users {
             return true;
         }
 
-        bool isPasswordSet(Users *user, int index) {
-            return user->password[index] != '\0';
+        bool isPasswordSet() {
+            return this->password[0] != '\0';
         }
 
         bool setEmail(char *userEmail) {
