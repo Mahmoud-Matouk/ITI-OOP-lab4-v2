@@ -80,33 +80,63 @@ char getArrowKey() {
 
 #else
 
-char getch_linux() {
+char getch_linux(int vtime = 0) {
     char buf{};
     struct termios old = {};
     tcgetattr(0, &old);
     old.c_lflag &= ~ICANON;
     old.c_lflag &= ~ECHO;
-    old.c_cc[VMIN] = 1;
-    old.c_cc[VTIME] = 0;
+    old.c_cc[VMIN] = (vtime == 0) ? 1 : 0;
+    old.c_cc[VTIME] = vtime; // Tenths of a second
     tcsetattr(0, TCSANOW, &old);
-    read(0, &buf, 1);
+    int n = read(0, &buf, 1);
     old.c_lflag |= ICANON;
     old.c_lflag |= ECHO;
     tcsetattr(0, TCSADRAIN, &old);
-    return buf;
+    return (n > 0) ? buf : 0;
 }
 
 char getArrowKey() {
     char key = getch_linux();
-
-    if (key == '\033') {
-        getch_linux();
-        return getch_linux();
+    if (key == '\033') { // 27
+        char nextByte = getch_linux(1); // Check for following bytes
+        if (nextByte == 0) {
+            return 27; // No following bytes -> ESC pressed!
+        }
+        if (nextByte == '[') {
+            return getch_linux(1);
+        }
+        return nextByte;
     }
-
     return key;
 }
 #endif
+
+inline bool isEscPressed(char* buffer, int maxSize) {
+    int i = 0;
+    while (true) {
+        char ch = getArrowKey();
+
+        if (ch == 27) {
+            return false;
+        } 
+        else if (ch == '\r' || ch == '\n') {
+            buffer[i] = '\0';
+            cout << endl;
+            return true;
+        } 
+        else if (ch == '\b' || ch == 127) {
+            if (i > 0) {
+                i--;
+                cout << "\b \b" << flush;
+            }
+        } 
+        else if (i < maxSize - 1 && ch >= 32 && ch <= 126) {
+            buffer[i++] = ch;
+            cout << ch << flush;
+        }
+    }
+}
 
 // void moveUpDown() {
 //     char byte1='q';

@@ -40,7 +40,10 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
     do {
         printAt(spaceX, spaceY + lineStep, "Enter name:");
         goToXY(spaceX, spaceY + lineStep + 1);
-        cin >> input;
+        if (!isEscPressed(input, MAX_SIZE)) {
+            delete tempUser;
+            return;
+        }
         if (!tempUser->setName(input)) {
             printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid name (no numbers allowed)!", true, Color::Red);
         }
@@ -50,7 +53,10 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
     do {
         printAt(spaceX, spaceY + lineStep, "Enter Password:");
         goToXY(spaceX, spaceY + lineStep + 1);
-        cin >> input;
+        if (!isEscPressed(input, MAX_SIZE)) {
+            delete tempUser;
+            return;
+        }
         if (!tempUser->setPassword(input)) {
             printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid password (must be 7-99 characters)!", true, Color::Red);
         }
@@ -60,7 +66,10 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
     do {
         printAt(spaceX, spaceY + lineStep, "Enter email:");
         goToXY(spaceX, spaceY + lineStep + 1);
-        cin >> input;
+        if (!isEscPressed(input, MAX_SIZE)) {
+            delete tempUser;
+            return;
+        }
         if (!tempUser->setEmail(input)) {
             printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid email format (needs @ and domain)!", true, Color::Red);
         }
@@ -72,13 +81,12 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
         printAt(spaceX, spaceY + lineStep, "Enter age: ");
         goToXY(spaceX, spaceY + lineStep + 1);
 
-        if (!(cin >> age)) { 
-            cin.clear();
-            cin.ignore(1000, '\n');
-            printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid age! Numbers only.", true, Color::Red);
-            lineStep+=2;
-        } 
-        else if (!tempUser->setAge(age)) {
+        if (!isEscPressed(input, MAX_SIZE)) {
+            delete tempUser;
+            return;
+        }
+        age = atoi(input);
+        if (!tempUser->setAge(age)) {
             printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid age (must be 1-120)!", true, Color::Red);
             lineStep+=2;
         } 
@@ -91,16 +99,16 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
     } while (tempUser->getAge() == 0);
 
     userPtr[n] = tempUser;
-    printAt(spaceX, spaceY + lineStep + 2, "User added successfully! Press any key to continue...", true, Color::Green);
-    getArrowKey();
+    printAt(spaceX, spaceY + lineStep + 2, "User added successfully! Press ESC to return to menu...", true, Color::Green);
+    while (getArrowKey() != 27);
 }
 
 void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize) {
     clearScreen();
 
     if (ptrSize <= 0) {
-        printAt(spaceX, spaceY, "Invalid menu size. Press any key to return.", true, Color::Red);
-        getArrowKey();
+        printAt(spaceX, spaceY, "Invalid menu size. Press ESC to return.", true, Color::Red);
+        while (getArrowKey() != 27);
         return;
     }
 
@@ -111,8 +119,8 @@ void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize)
 
     if (userCount == 0) {
         printAt(spaceX, spaceY, "No users registered yet!", true, Color::Red);
-        printAt(spaceX, spaceY + 2, "Press any key to return to main menu...", true, Color::White);
-        getArrowKey();
+        printAt(spaceX, spaceY + 2, "Press ESC to return to main menu...", true, Color::White);
+        while (getArrowKey() != 27);
         return;
     }
 
@@ -135,8 +143,8 @@ void displayUsersDataMenu(int spaceX, int spaceY, Users* userPtr[], int ptrSize)
         currentY += 2; 
     }
 
-    printAt(spaceX, currentY + 3, "Press any key to return to menu...", true, Color::Green);
-    getArrowKey();
+    printAt(spaceX, currentY + 3, "Press ESC to return to menu...", true, Color::Green);
+    while (getArrowKey() != 27);
 }
 
 void initMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize) {
