@@ -87,7 +87,7 @@ void displayNewUsersMenu(int spaceX, int spaceY, Users** &userPtr, int &ptrSize)
         }
         age = atoi(input);
         if (!tempUser->setAge(age)) {
-            printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid age (must be 1-120)!", true, Color::Red);
+            printAt(spaceX * 3, spaceY + lineStep + 2, "Invalid age (must be 1-100)!", true, Color::Red);
             lineStep+=2;
         } 
         else {
